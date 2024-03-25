@@ -1,5 +1,9 @@
 #include "OGL.hpp"
 
+#ifdef _OGL_DEBUG
+#include <iostream>
+#endif
+
 namespace OGL
 {
 	void initializeContext(Window* window, glm::uvec2 windowDimensions, const std::string& title)

@@ -7,13 +7,17 @@
 
 #include "GL/glew.h"
 
-#ifdef _OGL_DEBUG
-#include <iostream>
-#endif
-
 #include <string>
 
 typedef GLFWwindow* Window;
+
+#include "version.hpp"
+
+namespace OGL
+{
+	constexpr static const char* getVersion() { return _OGL_VERSION; }
+	constexpr static const char* getContextVersion() { return "4.5"; }
+}
 
 namespace OGL
 {
@@ -26,5 +30,7 @@ namespace OGL
 	void swapBuffers(Window* window);
 	void pollEvents();
 }
+
+#include "Program/Program.hpp"
 
 #endif

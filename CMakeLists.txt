@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-project(OGL VERSION 0.1.0)
+project(OGL VERSION 0.2.0)
 
-add_library(OGL STATIC src/OGL.cpp)
+configure_file("include/version.hpp.in" version.hpp @ONLY)
+add_library(OGL STATIC "src/OGL.cpp" "src/Program/Program.cpp")
 
 set(GLFW_LIBRARY_TYPE STATIC)
 set(GLFW_BUILD_SHARED_LIBS OFF)
@@ -20,6 +21,7 @@ target_include_directories(OGL PUBLIC
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/glew-2.1.0/include"
     "${CMAKE_SOURCE_DIR}/glfw-3.4/include"
+    "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
