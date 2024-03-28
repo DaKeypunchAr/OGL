@@ -43,7 +43,7 @@ namespace OGL
 		glEnable(GL_DEBUG_CALLBACK_FUNCTION);
 		glDebugMessageCallback(OGLDebugCallback, nullptr);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		clearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 	void terminateContext(Window* window)
 	{
@@ -61,6 +61,14 @@ namespace OGL
 	void pollEvents()
 	{
 		glfwPollEvents();
+	}
+	void clearColor(glm::vec4 clearColor)
+	{
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+	}
+	void clearScreen()
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 	void GLFWDebugCallback(int errCode, const char* desc)

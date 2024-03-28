@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.6)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 project(OGL VERSION 0.2.0)
 
 configure_file("include/version.hpp.in" version.hpp @ONLY)
-add_library(OGL STATIC "src/OGL.cpp" "src/Program/Program.cpp")
+add_library(OGL STATIC "src/OGL.cpp" "src/Program/Program.cpp" "src/VAO/VAO.cpp")
 
 set(GLFW_LIBRARY_TYPE STATIC)
 set(GLFW_BUILD_SHARED_LIBS OFF)

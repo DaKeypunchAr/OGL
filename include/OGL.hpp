@@ -29,8 +29,11 @@ namespace OGL
 	bool shouldClose(Window* window);
 	void swapBuffers(Window* window);
 	void pollEvents();
+	void clearColor(glm::vec4 clearColor);
+	void clearScreen();
 }
 
 #include "Program/Program.hpp"
+#include "VAO/VAO.hpp"
 
 #endif
