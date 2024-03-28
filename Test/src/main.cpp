@@ -14,8 +14,9 @@ int main()
 	OGL::Program colorProgram(ROOT_DIR "/src/Resources/Shaders/Color");
 
 	OGL::VBOConfig vbInfo(0, OGL::BufferUsageHint::StaticDraw, 2 * sizeof(float), { OGL::AttribInfo(0, 2, 0) });
-	OGL::VAO vao(3, { 6 }, { vbInfo });
-	vao.updateEB(0, { 0, 1, 2 });
+	OGL::EBOConfig eb(3, OGL::BufferUsageHint::StaticDraw, OGL::EBDataType::UBYTE);
+	OGL::VAO vao({ 6 }, { vbInfo }, std::optional<OGL::EBOConfig>(eb));
+	vao.updateEB(0, std::vector<unsigned char>({0, 1, 2}));
 	vao.updateVB(0, {
 		-0.5f, -0.5f,
 		+0.5f, -0.5f,
@@ -29,7 +30,7 @@ int main()
 		OGL::clearScreen();
 
 		vao.bind();
-		glDrawElements(GL_TRIANGLES, vao.getElementsCount(), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, vao.getElementsCount(), GL_UNSIGNED_BYTE, nullptr);
 
 		OGL::swapBuffers(&window);
 		OGL::pollEvents();

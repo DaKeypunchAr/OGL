@@ -52,9 +52,11 @@ namespace OGL
 
 	struct EBOConfig
 	{
-		EBDataType dataType;
-		BufferUsageHint usage;
 		unsigned int count;
+		BufferUsageHint usage;
+		EBDataType dataType;
+		EBOConfig(unsigned int count, BufferUsageHint usage, EBDataType dataType)
+			: count(count), usage(usage), dataType(dataType) {}
 	};
 
 	class VAO
@@ -62,26 +64,32 @@ namespace OGL
 	public:
 		VAO() = default;
 		VAO(const VAO& other) = delete;
-		VAO(unsigned int ebCount, std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos);
+		VAO(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb);
 		~VAO();
 
 		void bind() const;
 
 		void updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const;
 		void updateEB(unsigned int off, std::vector<unsigned int> buffer) const;
+		void updateEB(unsigned int off, std::vector<unsigned short> buffer) const;
+		void updateEB(unsigned int off, std::vector<unsigned char> buffer) const;
 
 		void recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const;
-		void recreateEB(unsigned int ebCount, unsigned int usage) const;
+		void recreateEB(EBOConfig eb) const;
 
-		void initialize(unsigned int ebCount, std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos);
+		void initialize(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>&);
 
-		unsigned int getElementsCount() const { return m_ElementsCount; }
-		static constexpr unsigned int getBufferHint(BufferUsageHint usage);
+		constexpr unsigned int getElementsCount() const { return m_ElementsCount; }
+		static constexpr unsigned int getBufferUsageHint(BufferUsageHint usage);
+		static constexpr unsigned int getDataTypeSize(EBDataType dataType);
+		constexpr bool isInitialized() const { return m_IsInitialized; }
+		constexpr bool usesEBO() const { return m_UsesEBO; }
+		constexpr EBDataType dataType() const { return m_EBDataType; }
 
 	private:
 		bool m_IsInitialized = false;
 		bool m_UsesEBO = false;
-		EBDataType m_EBDataType = EBDataType::NONE;
+		mutable EBDataType m_EBDataType = EBDataType::NONE;
 		mutable unsigned int m_ElementsCount;
 
 		unsigned int m_VAO, m_EBO;
