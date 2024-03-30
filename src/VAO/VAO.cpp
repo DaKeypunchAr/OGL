@@ -6,9 +6,9 @@
 
 namespace OGL
 {
-	VAO::VAO(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb)
+	VAO::VAO(std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb)
 	{
-		initialize(vbCounts, vboInfos, eb);
+		initialize(vboInfos, eb);
 	}
 	VAO::~VAO()
 	{
@@ -25,9 +25,8 @@ namespace OGL
 		glBindVertexArray(m_VAO);
 	}
 
-	void VAO::updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const
+	void VAO::updateVB(unsigned int bindingIdx, unsigned int off, std::vector<float> buffer) const
 	{
-		m_VertexCount = buffer.size() / m_VBAttribCount[bindingIdx];
 		glNamedBufferSubData(m_VBOs[bindingIdx], off * sizeof(float), buffer.size() * sizeof(float), buffer.data());
 	}
 	void VAO::updateEB(unsigned int off, std::vector<unsigned int> buffer) const
@@ -100,10 +99,12 @@ namespace OGL
 #endif
 	}
 
-	void VAO::recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const
+	void VAO::recreateVB(VBOConfig vb) const
 	{
-		m_VertexCount = vbCount / m_VBAttribCount[bindingIdx];
-		glNamedBufferData(m_VBOs[bindingIdx], vbCount * sizeof(float), nullptr, usage);
+		m_VBAttribCount[vb.bindingIdx] = 0;
+		for (AttribInfo& i : vb.attribs) m_VBAttribCount[vb.bindingIdx] += i.count;
+		m_VertexCount = vb.count / m_VBAttribCount[vb.bindingIdx];
+		glNamedBufferData(m_VBOs[vb.bindingIdx], vb.count * sizeof(float), nullptr, getBufferUsageHint(vb.usage));
 	}
 	void VAO::recreateEB(EBOConfig eb) const
 	{
@@ -119,7 +120,7 @@ namespace OGL
 		glNamedBufferData(m_EBO, m_ElementsCount * getDataTypeSize(m_EBDataType), nullptr, getBufferUsageHint(eb.usage));
 	}
 
-	void VAO::initialize(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb)
+	void VAO::initialize(std::vector<VBOConfig> vbInfos, std::optional<EBOConfig>& eb)
 	{
 		if (!m_IsInitialized)
 		{
@@ -146,24 +147,31 @@ namespace OGL
 			glVertexArrayElementBuffer(m_VAO, m_EBO);
 		}
 
-		for (unsigned int i = 0; i < vbCounts.size(); i++)
+		m_VBOs.reserve(vbInfos.size());
+		m_VBAttribCount.reserve(vbInfos.size());
+		for (unsigned int i = 0; i < vbInfos.size(); i++)
+		{
+			m_VBOs.push_back(0);
+			m_VBAttribCount.push_back(0);
+		}
+		for (VBOConfig& vb : vbInfos)
 		{
 			unsigned int buffer;
 			glCreateBuffers(1, &buffer);
-			glNamedBufferData(buffer, vbCounts[i] * sizeof(float), nullptr, getBufferUsageHint(vboInfos[i].usage));
-			glVertexArrayVertexBuffer(m_VAO, vboInfos[i].bindingIdx, buffer, 0, vboInfos[i].stride);
+			glNamedBufferData(buffer, vb.count * sizeof(float), nullptr, getBufferUsageHint(vb.usage));
+			glVertexArrayVertexBuffer(m_VAO, vb.bindingIdx, buffer, 0, vb.stride);
 
 			unsigned char count{};
-			for (const AttribInfo& info : vboInfos[i].attribs)
+			for (const AttribInfo& info : vb.attribs)
 			{
 				glVertexArrayAttribFormat(m_VAO, info.attribIdx, info.count, GL_FLOAT, GL_FALSE, info.offset);
-				glVertexArrayAttribBinding(m_VAO, info.attribIdx, vboInfos[i].bindingIdx);
+				glVertexArrayAttribBinding(m_VAO, info.attribIdx, vb.bindingIdx);
 				glEnableVertexArrayAttrib(m_VAO, info.attribIdx);
 				count += info.count;
 			}
 
-			m_VBAttribCount.push_back(count);
-			m_VBOs.push_back(buffer);
+			m_VBAttribCount[vb.bindingIdx] = count;
+			m_VBOs[vb.bindingIdx] = buffer;
 		}
 	}
 

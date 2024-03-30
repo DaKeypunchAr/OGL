@@ -34,12 +34,13 @@ namespace OGL
 	struct VBOConfig
 	{
 		unsigned int bindingIdx;
-		BufferUsageHint usage;
+		unsigned int count;
 		unsigned int stride;
 		std::vector<AttribInfo> attribs;
+		BufferUsageHint usage;
 
-		VBOConfig(unsigned int bindingIdx, BufferUsageHint usage, unsigned int stride, std::vector<AttribInfo> attribs)
-			: bindingIdx(bindingIdx), usage(usage), stride(stride), attribs(attribs) {}
+		VBOConfig(unsigned int bindingIdx, unsigned int count, unsigned int stride, std::vector<AttribInfo> attribs, BufferUsageHint usage = BufferUsageHint::StaticDraw)
+			: bindingIdx(bindingIdx), count(count), stride(stride), attribs(attribs), usage(usage) {}
 	};
 
 	enum class EBDataType
@@ -53,10 +54,10 @@ namespace OGL
 	struct EBOConfig
 	{
 		unsigned int count;
-		BufferUsageHint usage;
 		EBDataType dataType;
-		EBOConfig(unsigned int count, BufferUsageHint usage, EBDataType dataType)
-			: count(count), usage(usage), dataType(dataType) {}
+		BufferUsageHint usage;
+		EBOConfig(unsigned int count, EBDataType dataType = EBDataType::UBYTE, BufferUsageHint usage = BufferUsageHint::StaticDraw)
+			: count(count), dataType(dataType), usage(usage) {}
 	};
 
 	class VAO
@@ -64,20 +65,20 @@ namespace OGL
 	public:
 		VAO() = default;
 		VAO(const VAO& other) = delete;
-		VAO(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb);
+		VAO(std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb = std::optional<EBOConfig>());
 		~VAO();
 
 		void bind() const;
 
-		void updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const;
+		void updateVB(unsigned int bindingIdx, unsigned int off, std::vector<float> buffer) const;
 		void updateEB(unsigned int off, std::vector<unsigned int> buffer) const;
 		void updateEB(unsigned int off, std::vector<unsigned short> buffer) const;
 		void updateEB(unsigned int off, std::vector<unsigned char> buffer) const;
 
-		void recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const;
+		void recreateVB(VBOConfig vb) const;
 		void recreateEB(EBOConfig eb) const;
 
-		void initialize(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>&);
+		void initialize(std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb = std::optional<EBOConfig>());
 
 		constexpr unsigned int getElementsCount() const { return m_ElementsCount; }
 		constexpr unsigned int getVerticesCount() const { return m_VertexCount;}
@@ -94,7 +95,7 @@ namespace OGL
 		mutable unsigned int m_ElementsCount;
 		mutable unsigned int m_VertexCount;
 
-		std::vector<unsigned char> m_VBAttribCount;
+		mutable std::vector<unsigned char> m_VBAttribCount;
 
 		unsigned int m_VAO, m_EBO;
 		std::vector<unsigned int> m_VBOs;
