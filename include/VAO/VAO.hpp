@@ -80,6 +80,7 @@ namespace OGL
 		void initialize(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>&);
 
 		constexpr unsigned int getElementsCount() const { return m_ElementsCount; }
+		constexpr unsigned int getVerticesCount() const { return m_VertexCount;}
 		static constexpr unsigned int getBufferUsageHint(BufferUsageHint usage);
 		static constexpr unsigned int getDataTypeSize(EBDataType dataType);
 		constexpr bool isInitialized() const { return m_IsInitialized; }
@@ -91,6 +92,9 @@ namespace OGL
 		bool m_UsesEBO = false;
 		mutable EBDataType m_EBDataType = EBDataType::NONE;
 		mutable unsigned int m_ElementsCount;
+		mutable unsigned int m_VertexCount;
+
+		std::vector<unsigned char> m_VBAttribCount;
 
 		unsigned int m_VAO, m_EBO;
 		std::vector<unsigned int> m_VBOs;

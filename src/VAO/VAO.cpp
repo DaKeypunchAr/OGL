@@ -27,6 +27,7 @@ namespace OGL
 
 	void VAO::updateVB(unsigned int off, std::vector<float> buffer, unsigned int bindingIdx) const
 	{
+		m_VertexCount = buffer.size() / m_VBAttribCount[bindingIdx];
 		glNamedBufferSubData(m_VBOs[bindingIdx], off * sizeof(float), buffer.size() * sizeof(float), buffer.data());
 	}
 	void VAO::updateEB(unsigned int off, std::vector<unsigned int> buffer) const
@@ -101,6 +102,7 @@ namespace OGL
 
 	void VAO::recreateVB(unsigned int vbCount, unsigned int usage, unsigned int bindingIdx) const
 	{
+		m_VertexCount = vbCount / m_VBAttribCount[bindingIdx];
 		glNamedBufferData(m_VBOs[bindingIdx], vbCount * sizeof(float), nullptr, usage);
 	}
 	void VAO::recreateEB(EBOConfig eb) const
@@ -119,7 +121,11 @@ namespace OGL
 
 	void VAO::initialize(std::vector<unsigned int> vbCounts, std::vector<VBOConfig> vboInfos, std::optional<EBOConfig>& eb)
 	{
-		if (!m_IsInitialized) glCreateVertexArrays(1, &m_VAO);
+		if (!m_IsInitialized)
+		{
+			glCreateVertexArrays(1, &m_VAO);
+			m_IsInitialized = true;
+		}
 		else
 		{
 			glDeleteVertexArrays(1, &m_VAO);
@@ -147,12 +153,16 @@ namespace OGL
 			glNamedBufferData(buffer, vbCounts[i] * sizeof(float), nullptr, getBufferUsageHint(vboInfos[i].usage));
 			glVertexArrayVertexBuffer(m_VAO, vboInfos[i].bindingIdx, buffer, 0, vboInfos[i].stride);
 
+			unsigned char count{};
 			for (const AttribInfo& info : vboInfos[i].attribs)
 			{
 				glVertexArrayAttribFormat(m_VAO, info.attribIdx, info.count, GL_FLOAT, GL_FALSE, info.offset);
 				glVertexArrayAttribBinding(m_VAO, info.attribIdx, vboInfos[i].bindingIdx);
 				glEnableVertexArrayAttrib(m_VAO, info.attribIdx);
+				count += info.count;
 			}
+
+			m_VBAttribCount.push_back(count);
 			m_VBOs.push_back(buffer);
 		}
 	}

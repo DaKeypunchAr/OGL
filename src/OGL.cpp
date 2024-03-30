@@ -179,4 +179,42 @@ namespace OGL
 		}
 #endif
 	}
+
+	void renderVAO(const VAO& vao)
+	{
+		if (!vao.isInitialized())
+		{
+#ifdef _OGL_DEBUG
+			std::cerr << "You cannot render a uninitialized vao!\n";
+			__debugbreak();
+#endif
+			return;
+		}
+		vao.bind();
+		if (vao.usesEBO())
+		{
+			unsigned int datatype{};
+			switch (vao.dataType())
+			{
+			case EBDataType::NONE:
+#ifdef _OGL_DEBUG
+				std::cerr << "Vao's data type is none!\n";
+				__debugbreak();
+#endif
+				return;
+			case EBDataType::UBYTE:
+				datatype = GL_UNSIGNED_BYTE;
+				break;
+			case EBDataType::USHORT:
+				datatype = GL_UNSIGNED_SHORT;
+				break;
+			case EBDataType::UINT:
+				datatype = GL_UNSIGNED_INT;
+				break;
+			}
+			glDrawElements(GL_TRIANGLES, vao.getElementsCount(), datatype, nullptr);
+			return;
+		}
+		glDrawArrays(GL_TRIANGLES, 0, vao.getVerticesCount());
+	}
 }

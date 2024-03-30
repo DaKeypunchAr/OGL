@@ -1,4 +1,4 @@
-project(Test)
+project(Test LANGUAGES CXX)
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
 configure_file("root.hpp.in" root.hpp @ONLY)
