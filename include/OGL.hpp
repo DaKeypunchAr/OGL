@@ -21,6 +21,7 @@ namespace OGL
 
 #include "Program/Program.hpp"
 #include "VAO/VAO.hpp"
+#include "Texture/Texture.hpp"
 
 namespace OGL
 {
